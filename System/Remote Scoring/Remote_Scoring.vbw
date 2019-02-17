@@ -1,0 +1,10 @@
+frmSplash = 0, 0, 0, 0, C, 0, 0, 0, 0, C
+modConnection = 0, 0, 0, 0, C
+b8Container = 0, 0, 0, 0, C, 0, 0, 0, 0, C
+b8TitleBar = 0, 0, 0, 0, C, 0, 0, 0, 0, C
+b8Line = 0, 0, 0, 0, C, 0, 0, 0, 0, C
+b8LineVertical = 0, 0, 0, 0, C, 0, 0, 0, 0, C
+MainForm = 0, 0, 0, 0, C, 0, 0, 0, 0, C
+modDeclaration = 0, 0, 0, 0, C
+frmScoreCard = 0, 0, 0, 0, C, 0, 0, 0, 0, C
+modFunction = 0, 0, 0, 0, C

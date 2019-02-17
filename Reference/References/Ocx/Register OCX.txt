@@ -1,0 +1,6 @@
+Register OCX
+WINXP,WIN 98 & 95
+c:\windows\system32\regsvr32.exe c:\windows\system32\HoverButton.ocx
+
+WINNT
+c:\winnt\system32\regsvr32.exe c:\winnt\system32\msdxm.ocx

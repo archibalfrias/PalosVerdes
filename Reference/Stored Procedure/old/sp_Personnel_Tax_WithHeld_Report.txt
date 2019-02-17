@@ -1,0 +1,21 @@
+CREATE PROCEDURE sp_Personnel_Tax_WithHeld_Report
+
+@Period int, @Division int, @Is_TIN int, @Is_Have_Cont int
+
+AS
+
+SELECT     dbo.tbl_Personnel_Compensation.EmpPK, dbo.tbl_Personnel_Department.DepartmentName, dbo.tbl_Personnel_Action.TIN AS TinNumber,
+                      dbo.tbl_Personnel_Information.LastName + ',  ' + dbo.tbl_Personnel_Information.FirstName + '  ' + dbo.tbl_Personnel_Information.MiddleName
+                       AS EmployeeName, dbo.tbl_Personnel_Compensation.TotalEarning, dbo.tbl_Personnel_Compensation.WithHeld, dbo.tbl_Personnel_Compensation.Period
+FROM         dbo.tbl_Personnel_Compensation LEFT OUTER JOIN
+                      dbo.tbl_Personnel_IDNumber ON
+                      dbo.tbl_Personnel_Compensation.EmpPK = dbo.tbl_Personnel_IDNumber.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Information ON
+                      dbo.tbl_Personnel_IDNumber.ProfileKey = dbo.tbl_Personnel_Information.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Action ON dbo.tbl_Personnel_Compensation.ActionMemo = dbo.tbl_Personnel_Action.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Department ON dbo.tbl_Personnel_Compensation.Dept = dbo.tbl_Personnel_Department.PK
+WHERE     (dbo.tbl_Personnel_Compensation.Division = @Division) AND (dbo.tbl_Personnel_Compensation.Period = @Period) AND (dbo.tbl_Personnel_Action.Is_TIN = @Is_TIN) AND
+                      (dbo.tbl_Personnel_Compensation.Is_Have_Cont = @Is_Have_Cont)
+ORDER BY  dbo.tbl_Personnel_Information.LastName + ',  ' + dbo.tbl_Personnel_Information.FirstName + '  ' + dbo.tbl_Personnel_Information.MiddleName
+GO
+

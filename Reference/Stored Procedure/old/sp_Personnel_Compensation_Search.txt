@@ -1,0 +1,19 @@
+CREATE PROCEDURE sp_Personnel_Compensation_Search
+
+@LastName varchar(100)
+
+AS
+
+SELECT     TOP 100 PERCENT dbo.tbl_Personnel_Compensation.EmpPK, dbo.tbl_Personnel_IDNumber.IDNumber,
+                      dbo.tbl_Personnel_Information.LastName + ',  ' + dbo.tbl_Personnel_Information.FirstName + '  ' + dbo.tbl_Personnel_Information.MiddleName
+                       AS EmployeeName
+FROM         dbo.tbl_Personnel_Compensation INNER JOIN
+                      dbo.tbl_Personnel_IDNumber ON dbo.tbl_Personnel_Compensation.EmpPK = dbo.tbl_Personnel_IDNumber.PK INNER JOIN
+                      dbo.tbl_Personnel_Information ON dbo.tbl_Personnel_IDNumber.ProfileKey = dbo.tbl_Personnel_Information.PK
+WHERE     (dbo.tbl_Personnel_Information.LastName LIKE @LastName)
+GROUP BY dbo.tbl_Personnel_Compensation.EmpPK, dbo.tbl_Personnel_IDNumber.IDNumber,
+                      dbo.tbl_Personnel_Information.LastName + ',  ' + dbo.tbl_Personnel_Information.FirstName + '  ' + dbo.tbl_Personnel_Information.MiddleName
+ORDER BY dbo.tbl_Personnel_Information.LastName + ',  ' + dbo.tbl_Personnel_Information.FirstName + '  ' + dbo.tbl_Personnel_Information.MiddleName,
+                       dbo.tbl_Personnel_IDNumber.IDNumber
+
+GO

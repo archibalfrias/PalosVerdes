@@ -1,0 +1,348 @@
+CREATE PROCEDURE sp_Score_Best_Ball_Print
+
+@DateFrom datetime, @DateTo datetime, @Sorting int, @Handicap varchar(1)
+
+AS
+
+--by team handicap
+if @Sorting = 1
+	SELECT     TOP 100 PERCENT dbo.tbl_Scoring_Team.PK, dbo.tbl_Scoring_Team.TeamID, COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey) AS NoPlayer, 
+                      SUM(dbo.tbl_Scoring_PlayerName.HandiCap) AS TotalHDCP, SUM(dbo.tbl_Scoring_PlayerName.HandiCap) 
+                      / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey) AS AveHDCP, CONVERT(int, SUM(dbo.tbl_Scoring_PlayerName.HandiCap) 
+                      / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey)) AS TeamHDCP, ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Front9Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) AS Front9, ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Back9Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) AS Back9, ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) AS TotScore, (CASE ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) 
+                      WHEN 0 THEN 0 ELSE ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) - CONVERT(int, 
+                      SUM(dbo.tbl_Scoring_PlayerName.HandiCap) / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey)) END) AS NetScore,
+		(SELECT     dbo.tbl_Scoring_TournamentInfo_Class.Class
+                            FROM          dbo.tbl_Scoring_TournamentInfo_Class
+                            WHERE      (dbo.tbl_Scoring_TournamentInfo_Class.TournamentKey = dbo.tbl_Scoring_Team.TournamentKey) AND 
+                                                   (dbo.tbl_Scoring_TournamentInfo_Class.HFrom <= CONVERT(int, SUM(dbo.tbl_Scoring_PlayerName.HandiCap) 
+                                                   / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey))) AND (dbo.tbl_Scoring_TournamentInfo_Class.HTo >= CONVERT(int, 
+                                                   SUM(dbo.tbl_Scoring_PlayerName.HandiCap) / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey)))) AS Class
+	FROM         dbo.tbl_Scoring_Team LEFT OUTER JOIN
+                      dbo.tbl_Scoring_Team_Detail ON dbo.tbl_Scoring_Team.PK = dbo.tbl_Scoring_Team_Detail.TeamKey LEFT OUTER JOIN
+                      dbo.tbl_Scoring_PlayerName ON dbo.tbl_Scoring_Team_Detail.PlayerKey = dbo.tbl_Scoring_PlayerName.PK
+	WHERE     (dbo.tbl_Scoring_Team.TournamentKey = 2)
+	GROUP BY dbo.tbl_Scoring_Team.TeamID, dbo.tbl_Scoring_Team.PK
+	ORDER BY ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) - CONVERT(int, 
+                      SUM(dbo.tbl_Scoring_PlayerName.HandiCap) / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey))
+else
+--by gross score
+if @Sorting = 2
+	SELECT     TOP 100 PERCENT dbo.tbl_Scoring_Team.PK, dbo.tbl_Scoring_Team.TeamID, COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey) AS NoPlayer, 
+                      SUM(dbo.tbl_Scoring_PlayerName.HandiCap) AS TotalHDCP, SUM(dbo.tbl_Scoring_PlayerName.HandiCap) 
+                      / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey) AS AveHDCP, CONVERT(int, SUM(dbo.tbl_Scoring_PlayerName.HandiCap) 
+                      / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey)) AS TeamHDCP, ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Front9Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) AS Front9, ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Back9Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) AS Back9, ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) AS TotScore, (CASE ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) 
+                      WHEN 0 THEN 0 ELSE ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) - CONVERT(int, 
+                      SUM(dbo.tbl_Scoring_PlayerName.HandiCap) / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey)) END) AS NetScore,
+		(SELECT     dbo.tbl_Scoring_TournamentInfo_Class.Class
+                            FROM          dbo.tbl_Scoring_TournamentInfo_Class
+                            WHERE      (dbo.tbl_Scoring_TournamentInfo_Class.TournamentKey = dbo.tbl_Scoring_Team.TournamentKey) AND 
+                                                   (dbo.tbl_Scoring_TournamentInfo_Class.HFrom <= CONVERT(int, SUM(dbo.tbl_Scoring_PlayerName.HandiCap) 
+                                                   / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey))) AND (dbo.tbl_Scoring_TournamentInfo_Class.HTo >= CONVERT(int, 
+                                                   SUM(dbo.tbl_Scoring_PlayerName.HandiCap) / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey)))) AS Class
+	FROM         dbo.tbl_Scoring_Team LEFT OUTER JOIN
+                      dbo.tbl_Scoring_Team_Detail ON dbo.tbl_Scoring_Team.PK = dbo.tbl_Scoring_Team_Detail.TeamKey LEFT OUTER JOIN
+                      dbo.tbl_Scoring_PlayerName ON dbo.tbl_Scoring_Team_Detail.PlayerKey = dbo.tbl_Scoring_PlayerName.PK
+	WHERE     (dbo.tbl_Scoring_Team.TournamentKey = 2)
+	GROUP BY dbo.tbl_Scoring_Team.TeamID, dbo.tbl_Scoring_Team.PK
+	ORDER BY ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0)
+else
+--by net score
+if @Sorting = 3
+	SELECT     TOP 100 PERCENT dbo.tbl_Scoring_Team.PK, dbo.tbl_Scoring_Team.TeamID, COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey) AS NoPlayer, 
+                      SUM(dbo.tbl_Scoring_PlayerName.HandiCap) AS TotalHDCP, SUM(dbo.tbl_Scoring_PlayerName.HandiCap) 
+                      / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey) AS AveHDCP, CONVERT(int, SUM(dbo.tbl_Scoring_PlayerName.HandiCap) 
+                      / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey)) AS TeamHDCP, ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Front9Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) AS Front9, ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Back9Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) AS Back9, ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) AS TotScore, (CASE ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) 
+                      WHEN 0 THEN 0 ELSE ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) - CONVERT(int, 
+                      SUM(dbo.tbl_Scoring_PlayerName.HandiCap) / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey)) END) AS NetScore,
+		(SELECT     dbo.tbl_Scoring_TournamentInfo_Class.Class
+                            FROM          dbo.tbl_Scoring_TournamentInfo_Class
+                            WHERE      (dbo.tbl_Scoring_TournamentInfo_Class.TournamentKey = dbo.tbl_Scoring_Team.TournamentKey) AND 
+                                                   (dbo.tbl_Scoring_TournamentInfo_Class.HFrom <= CONVERT(int, SUM(dbo.tbl_Scoring_PlayerName.HandiCap) 
+                                                   / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey))) AND (dbo.tbl_Scoring_TournamentInfo_Class.HTo >= CONVERT(int, 
+                                                   SUM(dbo.tbl_Scoring_PlayerName.HandiCap) / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey)))) AS Class
+	FROM         dbo.tbl_Scoring_Team LEFT OUTER JOIN
+                      dbo.tbl_Scoring_Team_Detail ON dbo.tbl_Scoring_Team.PK = dbo.tbl_Scoring_Team_Detail.TeamKey LEFT OUTER JOIN
+                      dbo.tbl_Scoring_PlayerName ON dbo.tbl_Scoring_Team_Detail.PlayerKey = dbo.tbl_Scoring_PlayerName.PK
+	WHERE     (dbo.tbl_Scoring_Team.TournamentKey = 2)
+	GROUP BY dbo.tbl_Scoring_Team.TeamID, dbo.tbl_Scoring_Team.PK
+	ORDER BY (CASE ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) 
+                      WHEN 0 THEN 0 ELSE ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) - CONVERT(int, 
+                      SUM(dbo.tbl_Scoring_PlayerName.HandiCap) / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey)) END)
+
+else
+--by team handicap
+if @Sorting = 4
+	SELECT     TOP 100 PERCENT dbo.tbl_Scoring_Team.PK, dbo.tbl_Scoring_Team.TeamID, COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey) AS NoPlayer, 
+                      SUM(dbo.tbl_Scoring_PlayerName.HandiCap) AS TotalHDCP, SUM(dbo.tbl_Scoring_PlayerName.HandiCap) 
+                      / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey) AS AveHDCP, CONVERT(int, SUM(dbo.tbl_Scoring_PlayerName.HandiCap) 
+                      / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey)) AS TeamHDCP, ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Front9Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) AS Front9, ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Back9Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) AS Back9, ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) AS TotScore, (CASE ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) 
+                      WHEN 0 THEN 0 ELSE ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) - CONVERT(int, 
+                      SUM(dbo.tbl_Scoring_PlayerName.HandiCap) / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey)) END) AS NetScore,
+		(SELECT     dbo.tbl_Scoring_TournamentInfo_Class.Class
+                            FROM          dbo.tbl_Scoring_TournamentInfo_Class
+                            WHERE      (dbo.tbl_Scoring_TournamentInfo_Class.TournamentKey = dbo.tbl_Scoring_Team.TournamentKey) AND 
+                                                   (dbo.tbl_Scoring_TournamentInfo_Class.HFrom <= CONVERT(int, SUM(dbo.tbl_Scoring_PlayerName.HandiCap) 
+                                                   / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey))) AND (dbo.tbl_Scoring_TournamentInfo_Class.HTo >= CONVERT(int, 
+                                                   SUM(dbo.tbl_Scoring_PlayerName.HandiCap) / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey)))) AS Class
+	FROM         dbo.tbl_Scoring_Team LEFT OUTER JOIN
+                      dbo.tbl_Scoring_Team_Detail ON dbo.tbl_Scoring_Team.PK = dbo.tbl_Scoring_Team_Detail.TeamKey LEFT OUTER JOIN
+                      dbo.tbl_Scoring_PlayerName ON dbo.tbl_Scoring_Team_Detail.PlayerKey = dbo.tbl_Scoring_PlayerName.PK
+	WHERE     (dbo.tbl_Scoring_Team.TournamentKey = 2)
+	GROUP BY dbo.tbl_Scoring_Team.TeamID, dbo.tbl_Scoring_Team.PK, dbo.tbl_Scoring_Team.TournamentKey
+	HAVING      ((SELECT     dbo.tbl_Scoring_TournamentInfo_Class.Class
+                         FROM         dbo.tbl_Scoring_TournamentInfo_Class
+                         WHERE     (dbo.tbl_Scoring_TournamentInfo_Class.TournamentKey = dbo.tbl_Scoring_Team.TournamentKey) AND 
+                                                (dbo.tbl_Scoring_TournamentInfo_Class.HFrom <= CONVERT(int, SUM(dbo.tbl_Scoring_PlayerName.HandiCap) 
+                                                / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey))) AND (dbo.tbl_Scoring_TournamentInfo_Class.HTo >= CONVERT(int, 
+                                                SUM(dbo.tbl_Scoring_PlayerName.HandiCap) / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey)))) = @Handicap)
+	ORDER BY ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) - CONVERT(int, 
+                      SUM(dbo.tbl_Scoring_PlayerName.HandiCap) / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey))
+else
+--by gross score
+if @Sorting = 5
+	SELECT     TOP 100 PERCENT dbo.tbl_Scoring_Team.PK, dbo.tbl_Scoring_Team.TeamID, COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey) AS NoPlayer, 
+                      SUM(dbo.tbl_Scoring_PlayerName.HandiCap) AS TotalHDCP, SUM(dbo.tbl_Scoring_PlayerName.HandiCap) 
+                      / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey) AS AveHDCP, CONVERT(int, SUM(dbo.tbl_Scoring_PlayerName.HandiCap) 
+                      / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey)) AS TeamHDCP, ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Front9Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) AS Front9, ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Back9Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) AS Back9, ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) AS TotScore, (CASE ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) 
+                      WHEN 0 THEN 0 ELSE ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) - CONVERT(int, 
+                      SUM(dbo.tbl_Scoring_PlayerName.HandiCap) / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey)) END) AS NetScore,
+		(SELECT     dbo.tbl_Scoring_TournamentInfo_Class.Class
+                            FROM          dbo.tbl_Scoring_TournamentInfo_Class
+                            WHERE      (dbo.tbl_Scoring_TournamentInfo_Class.TournamentKey = dbo.tbl_Scoring_Team.TournamentKey) AND 
+                                                   (dbo.tbl_Scoring_TournamentInfo_Class.HFrom <= CONVERT(int, SUM(dbo.tbl_Scoring_PlayerName.HandiCap) 
+                                                   / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey))) AND (dbo.tbl_Scoring_TournamentInfo_Class.HTo >= CONVERT(int, 
+                                                   SUM(dbo.tbl_Scoring_PlayerName.HandiCap) / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey)))) AS Class
+	FROM         dbo.tbl_Scoring_Team LEFT OUTER JOIN
+                      dbo.tbl_Scoring_Team_Detail ON dbo.tbl_Scoring_Team.PK = dbo.tbl_Scoring_Team_Detail.TeamKey LEFT OUTER JOIN
+                      dbo.tbl_Scoring_PlayerName ON dbo.tbl_Scoring_Team_Detail.PlayerKey = dbo.tbl_Scoring_PlayerName.PK
+	WHERE     (dbo.tbl_Scoring_Team.TournamentKey = 2)
+	GROUP BY dbo.tbl_Scoring_Team.TeamID, dbo.tbl_Scoring_Team.PK, dbo.tbl_Scoring_Team.TournamentKey
+	HAVING      ((SELECT     dbo.tbl_Scoring_TournamentInfo_Class.Class
+                         FROM         dbo.tbl_Scoring_TournamentInfo_Class
+                         WHERE     (dbo.tbl_Scoring_TournamentInfo_Class.TournamentKey = dbo.tbl_Scoring_Team.TournamentKey) AND 
+                                                (dbo.tbl_Scoring_TournamentInfo_Class.HFrom <= CONVERT(int, SUM(dbo.tbl_Scoring_PlayerName.HandiCap) 
+                                                / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey))) AND (dbo.tbl_Scoring_TournamentInfo_Class.HTo >= CONVERT(int, 
+                                                SUM(dbo.tbl_Scoring_PlayerName.HandiCap) / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey)))) = @Handicap)
+	ORDER BY ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0)
+else
+--by net score
+if @Sorting = 6
+	SELECT     TOP 100 PERCENT dbo.tbl_Scoring_Team.PK, dbo.tbl_Scoring_Team.TeamID, COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey) AS NoPlayer, 
+                      SUM(dbo.tbl_Scoring_PlayerName.HandiCap) AS TotalHDCP, SUM(dbo.tbl_Scoring_PlayerName.HandiCap) 
+                      / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey) AS AveHDCP, CONVERT(int, SUM(dbo.tbl_Scoring_PlayerName.HandiCap) 
+                      / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey)) AS TeamHDCP, ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Front9Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) AS Front9, ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Back9Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) AS Back9, ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) AS TotScore, (CASE ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) 
+                      WHEN 0 THEN 0 ELSE ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) - CONVERT(int, 
+                      SUM(dbo.tbl_Scoring_PlayerName.HandiCap) / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey)) END) AS NetScore,
+		(SELECT     dbo.tbl_Scoring_TournamentInfo_Class.Class
+                            FROM          dbo.tbl_Scoring_TournamentInfo_Class
+                            WHERE      (dbo.tbl_Scoring_TournamentInfo_Class.TournamentKey = dbo.tbl_Scoring_Team.TournamentKey) AND 
+                                                   (dbo.tbl_Scoring_TournamentInfo_Class.HFrom <= CONVERT(int, SUM(dbo.tbl_Scoring_PlayerName.HandiCap) 
+                                                   / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey))) AND (dbo.tbl_Scoring_TournamentInfo_Class.HTo >= CONVERT(int, 
+                                                   SUM(dbo.tbl_Scoring_PlayerName.HandiCap) / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey)))) AS Class
+	FROM         dbo.tbl_Scoring_Team LEFT OUTER JOIN
+                      dbo.tbl_Scoring_Team_Detail ON dbo.tbl_Scoring_Team.PK = dbo.tbl_Scoring_Team_Detail.TeamKey LEFT OUTER JOIN
+                      dbo.tbl_Scoring_PlayerName ON dbo.tbl_Scoring_Team_Detail.PlayerKey = dbo.tbl_Scoring_PlayerName.PK
+	WHERE     (dbo.tbl_Scoring_Team.TournamentKey = 2)
+	GROUP BY dbo.tbl_Scoring_Team.TeamID, dbo.tbl_Scoring_Team.PK, dbo.tbl_Scoring_Team.TournamentKey
+	HAVING      ((SELECT     dbo.tbl_Scoring_TournamentInfo_Class.Class
+                         FROM         dbo.tbl_Scoring_TournamentInfo_Class
+                         WHERE     (dbo.tbl_Scoring_TournamentInfo_Class.TournamentKey = dbo.tbl_Scoring_Team.TournamentKey) AND 
+                                                (dbo.tbl_Scoring_TournamentInfo_Class.HFrom <= CONVERT(int, SUM(dbo.tbl_Scoring_PlayerName.HandiCap) 
+                                                / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey))) AND (dbo.tbl_Scoring_TournamentInfo_Class.HTo >= CONVERT(int, 
+                                                SUM(dbo.tbl_Scoring_PlayerName.HandiCap) / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey)))) = @Handicap)
+	ORDER BY (CASE ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) 
+                      WHEN 0 THEN 0 ELSE ISNULL
+                          ((SELECT     TOP 100 PERCENT dbo.tbl_Scoring_ScoreCard_Team.Score
+                              FROM         dbo.tbl_Scoring_ScoreCard_Team
+                              WHERE     (dbo.tbl_Scoring_ScoreCard_Team.TeamKey = dbo.tbl_Scoring_Team.PK) AND 
+                                                    (dbo.tbl_Scoring_ScoreCard_Team.DDate >= @DateFrom AND 
+                                                    dbo.tbl_Scoring_ScoreCard_Team.DDate <= @DateTo)), 0) - CONVERT(int, 
+                      SUM(dbo.tbl_Scoring_PlayerName.HandiCap) / COUNT(dbo.tbl_Scoring_Team_Detail.PlayerKey)) END)
+
+GO

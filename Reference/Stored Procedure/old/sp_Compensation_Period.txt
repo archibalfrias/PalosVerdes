@@ -1,0 +1,15 @@
+CREATE PROCEDURE sp_Compensation_Period 
+
+@CurrDate datetime, @Div int
+
+AS
+
+SELECT     TOP 1 PK, DateFrom, DateTo, Terms
+FROM         dbo.tbl_Personnel_Compensation_Period
+WHERE     (DateFrom <
+                          (SELECT     tbl_Personnel_Compensation_Period.DateFrom
+                            FROM          tbl_Personnel_Compensation_Period
+                            WHERE      (tbl_Personnel_Compensation_Period.DateFrom <= @CurrDate) AND (tbl_Personnel_Compensation_Period.DateTo >= @CurrDate) AND 
+                                                   (tbl_Personnel_Compensation_Period.Type = @Div))) AND (Type = @Div)
+ORDER BY DateFrom DESC
+GO

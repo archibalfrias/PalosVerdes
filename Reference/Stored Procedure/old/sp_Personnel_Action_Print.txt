@@ -1,0 +1,45 @@
+CREATE PROCEDURE sp_Personnel_Action_Print
+
+@EmpPK int, @EffectivityDate datetime, @Select int
+
+AS
+--Current
+if @Select = 0
+    SELECT     dbo.tbl_Personnel_Action.EmpPK, dbo.tbl_Personnel_Action.EffectivityDate, dbo.tbl_Personnel_Action.CntrlNo,
+                      dbo.tbl_Personnel_IDNumber.IDNumber,
+                      dbo.tbl_Personnel_Information.LastName + ',  ' + dbo.tbl_Personnel_Information.FirstName + '  ' + dbo.tbl_Personnel_Information.MiddleName
+                       AS EmployeeName, dbo.tbl_Personnel_IDNumber.DateHired as DHired, dbo.tbl_Personnel_Department.DepartmentName,
+                      dbo.tbl_Personnel_Position.PositionName, dbo.tbl_Personnel_EmploymentStatus.StatusName, dbo.tbl_Personnel_TaxStatus.TaxStatus,
+                      dbo.tbl_Personnel_Action.Remarks, dbo.tbl_Personnel_Action.Basic, dbo.tbl_Personnel_Action.Allowance, dbo.tbl_Personnel_Action.CompensationRate,
+                      dbo.tbl_Personnel_Action.SSS , dbo.tbl_Personnel_Action.PHIC, dbo.tbl_Personnel_Action.PAGIBIG, dbo.tbl_Personnel_Action.TIN
+    FROM         dbo.tbl_Personnel_Action LEFT OUTER JOIN
+                      dbo.tbl_Personnel_TaxStatus ON dbo.tbl_Personnel_Action.TaxStatus = dbo.tbl_Personnel_TaxStatus.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_EmploymentStatus ON dbo.tbl_Personnel_Action.EmpStatus = dbo.tbl_Personnel_EmploymentStatus.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Position ON dbo.tbl_Personnel_Action.Positions = dbo.tbl_Personnel_Position.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Department ON dbo.tbl_Personnel_Action.Dept = dbo.tbl_Personnel_Department.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_IDNumber ON
+                      dbo.tbl_Personnel_Action.EmpPK = dbo.tbl_Personnel_IDNumber.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Information ON dbo.tbl_Personnel_IDNumber.ProfileKey = dbo.tbl_Personnel_Information.PK
+    WHERE     (dbo.tbl_Personnel_Action.EmpPK = @EmpPK) AND (dbo.tbl_Personnel_Action.EffectivityDate = @EffectivityDate)
+Else
+--Previous
+if @Select = 1
+    SELECT     dbo.tbl_Personnel_Action.EmpPK, dbo.tbl_Personnel_Action.EffectivityDate, dbo.tbl_Personnel_Action.CntrlNo,
+                      dbo.tbl_Personnel_IDNumber.IDNumber,
+                      dbo.tbl_Personnel_Information.LastName + ',  ' + dbo.tbl_Personnel_Information.FirstName + '  ' + dbo.tbl_Personnel_Information.MiddleName
+                       AS EmployeeName, dbo.tbl_Personnel_IDNumber.DateHired as DHired, dbo.tbl_Personnel_Department.DepartmentName,
+                      dbo.tbl_Personnel_Position.PositionName, dbo.tbl_Personnel_EmploymentStatus.StatusName, dbo.tbl_Personnel_TaxStatus.TaxStatus,
+                      dbo.tbl_Personnel_Action.Remarks, dbo.tbl_Personnel_Action.Basic, dbo.tbl_Personnel_Action.Allowance, dbo.tbl_Personnel_Action.CompensationRate,
+                      dbo.tbl_Personnel_Action.SSS , dbo.tbl_Personnel_Action.PHIC, dbo.tbl_Personnel_Action.PAGIBIG, dbo.tbl_Personnel_Action.TIN
+    FROM         dbo.tbl_Personnel_Action LEFT OUTER JOIN
+                      dbo.tbl_Personnel_TaxStatus ON dbo.tbl_Personnel_Action.TaxStatus = dbo.tbl_Personnel_TaxStatus.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_EmploymentStatus ON dbo.tbl_Personnel_Action.EmpStatus = dbo.tbl_Personnel_EmploymentStatus.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Position ON dbo.tbl_Personnel_Action.Positions = dbo.tbl_Personnel_Position.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Department ON dbo.tbl_Personnel_Action.Dept = dbo.tbl_Personnel_Department.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_IDNumber ON
+                      dbo.tbl_Personnel_Action.EmpPK = dbo.tbl_Personnel_IDNumber.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Information ON dbo.tbl_Personnel_IDNumber.ProfileKey = dbo.tbl_Personnel_Information.PK
+    WHERE     (dbo.tbl_Personnel_Action.EmpPK = @EmpPK) AND (dbo.tbl_Personnel_Action.EffectivityDate < @EffectivityDate)
+    ORDER BY dbo.tbl_Personnel_Action.EffectivityDate DESC
+GO
+

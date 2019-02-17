@@ -1,0 +1,45 @@
+CREATE PROCEDURE sp_Personnel_Compensation_Print
+
+@Division int, @Period int
+
+AS
+
+SELECT     TOP 100 PERCENT dbo.tbl_Personnel_Compensation.PK, dbo.tbl_Personnel_Compensation.EmpPK, dbo.tbl_Personnel_Compensation.Division, 
+                      dbo.tbl_Personnel_Compensation.Dept, dbo.tbl_Personnel_Compensation.Status, dbo.tbl_Personnel_Compensation.Positions, 
+                      dbo.tbl_Personnel_Compensation.Period, dbo.tbl_Personnel_Compensation.ActionMemo, dbo.tbl_Personnel_Compensation.NoHours, 
+                      dbo.tbl_Personnel_Compensation.SH_Hours, dbo.tbl_Personnel_Compensation.LH_Hours, dbo.tbl_Personnel_Compensation.SL_Hours, 
+                      dbo.tbl_Personnel_Compensation.Adjustment, dbo.tbl_Personnel_Compensation.Reg_OT_Hours, dbo.tbl_Personnel_Compensation.RD_OT_Hours, 
+                      dbo.tbl_Personnel_Compensation.SH_OT_Hours, dbo.tbl_Personnel_Compensation.LH_OT_Hours, dbo.tbl_Personnel_Compensation.Amount_Earned, 
+                      dbo.tbl_Personnel_Compensation.SH_Amount, dbo.tbl_Personnel_Compensation.LH_Amount, dbo.tbl_Personnel_Compensation.SL_Amount, 
+                      dbo.tbl_Personnel_Compensation.Reg_OT_Amount, dbo.tbl_Personnel_Compensation.RD_OT_Amount, 
+                      dbo.tbl_Personnel_Compensation.SH_OT_Amount, dbo.tbl_Personnel_Compensation.LH_OT_Amount, dbo.tbl_Personnel_Compensation.TotalEarning, 
+                      dbo.tbl_Personnel_Compensation.Mortuary, dbo.tbl_Personnel_Compensation.AR_Others, dbo.tbl_Personnel_Compensation.Advances, 
+                      dbo.tbl_Personnel_Compensation.Shortages, dbo.tbl_Personnel_Compensation.Uniforms, dbo.tbl_Personnel_Compensation.Others, 
+                      dbo.tbl_Personnel_Compensation.Is_Have_Loan, dbo.tbl_Personnel_Compensation.SSSLoan_No, dbo.tbl_Personnel_Compensation.SSSLoan, 
+                      dbo.tbl_Personnel_Compensation.SSSBalance, dbo.tbl_Personnel_Compensation.PagIbigLoan_No, dbo.tbl_Personnel_Compensation.PagIbigLoan, 
+                      dbo.tbl_Personnel_Compensation.PagIbigBalance, dbo.tbl_Personnel_Compensation.Is_Have_Cont, dbo.tbl_Personnel_Compensation.SSS, 
+                      dbo.tbl_Personnel_Compensation.SSS_Employer, dbo.tbl_Personnel_Compensation.SSS_EC, dbo.tbl_Personnel_Compensation.PHIC, 
+                      dbo.tbl_Personnel_Compensation.PHIC_Employer, dbo.tbl_Personnel_Compensation.PagIbig, dbo.tbl_Personnel_Compensation.PagIbig_Employer, 
+                      dbo.tbl_Personnel_Compensation.WithHeld, dbo.tbl_Personnel_Compensation.TotalDeduction, dbo.tbl_Personnel_Compensation.NetEarning, 
+                      dbo.tbl_Personnel_Compensation.Locked, dbo.tbl_Personnel_Compensation.LastModified, dbo.tbl_Personnel_Department.DepartmentName, 
+                      dbo.tbl_Personnel_EmploymentStatus.StatusName, dbo.tbl_Personnel_Position.PositionName, dbo.tbl_Personnel_Compensation_Period.DateFrom, 
+                      dbo.tbl_Personnel_Compensation_Period.DateTo, dbo.tbl_Personnel_Compensation_Period.Type, dbo.tbl_Personnel_IDNumber.IDNumber, 
+                      dbo.tbl_Personnel_Information.LastName AS LName, dbo.tbl_Personnel_Information.FirstName AS FName, 
+                      dbo.tbl_Personnel_Information.MiddleName AS MName, dbo.tbl_Personnel_Action.CompensationRate, 
+                      dbo.tbl_Personnel_Information.BirthDate AS BDate, dbo.tbl_Personnel_Action.Is_TIN, dbo.tbl_Personnel_Action.TIN, dbo.tbl_Personnel_Action.Is_SSS, 
+                      dbo.tbl_Personnel_Action.SSS AS SSSNo, dbo.tbl_Personnel_Action.Is_PHIC, dbo.tbl_Personnel_Action.PHIC AS PHICNo, 
+                      dbo.tbl_Personnel_Action.Is_PAGIBIG, dbo.tbl_Personnel_Action.PAGIBIG AS PAGIBIGNo, dbo.tbl_Personnel_Action.RatePerHour, 
+                      dbo.tbl_Personnel_Action.Basic, dbo.tbl_Personnel_Action.Allowance, dbo.tbl_Personnel_Action.RatePerHourAllow, 
+                      dbo.tbl_Personnel_IDNumber.IDNumber + ' - ' + dbo.tbl_Personnel_Information.LastName + ',  ' + dbo.tbl_Personnel_Information.FirstName + '  ' + dbo.tbl_Personnel_Information.MiddleName
+                       AS IDName
+FROM         dbo.tbl_Personnel_Compensation LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Action ON dbo.tbl_Personnel_Compensation.ActionMemo = dbo.tbl_Personnel_Action.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Department ON dbo.tbl_Personnel_Compensation.Dept = dbo.tbl_Personnel_Department.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_EmploymentStatus ON dbo.tbl_Personnel_Compensation.Status = dbo.tbl_Personnel_EmploymentStatus.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Position ON dbo.tbl_Personnel_Compensation.Positions = dbo.tbl_Personnel_Position.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_IDNumber ON dbo.tbl_Personnel_Compensation.EmpPK = dbo.tbl_Personnel_IDNumber.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Information ON dbo.tbl_Personnel_IDNumber.ProfileKey = dbo.tbl_Personnel_Information.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Compensation_Period ON dbo.tbl_Personnel_Compensation.Period = dbo.tbl_Personnel_Compensation_Period.PK
+WHERE     (dbo.tbl_Personnel_Compensation.Division = @Division) AND (dbo.tbl_Personnel_Compensation.Period = @Period)
+ORDER BY dbo.tbl_Personnel_Compensation.PK DESC
+GO

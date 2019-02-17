@@ -1,0 +1,40 @@
+CREATE PROCEDURE sp_Personnel_Alphalist
+
+@Status int, @EffectDate datetime
+
+AS
+
+
+SELECT     TOP 100 PERCENT dbo.tbl_Personnel_Information.LastName + ',  ' + dbo.tbl_Personnel_Information.FirstName + '  ' + dbo.tbl_Personnel_Information.MiddleName
+                       AS Name, dbo.tbl_Personnel_IDNumber.IDNumber AS [ID Number], 
+                      (CASE dbo.tbl_Personnel_Information.Gender WHEN 1 THEN 'MALE' ELSE 'FEMALE' END) AS Gender, 
+                      (CASE dbo.tbl_Personnel_Information.CivilStatus WHEN 1 THEN 'SINGLE' ELSE CASE dbo.tbl_Personnel_Information.CivilStatus WHEN 2 THEN 'MARRIED'
+                       ELSE CASE dbo.tbl_Personnel_Information.CivilStatus WHEN 3 THEN 'WIDOWED' ELSE 'WIDOWER' END END END) AS [Civil Status], 
+                      dbo.tbl_Personnel_Information.ContactNumber AS [Contact Number], dbo.tbl_Personnel_Information.SSSNumber AS [SSS Number], 
+                      dbo.tbl_Personnel_Information.PHICNumber AS [PhilHealth Number], dbo.tbl_Personnel_Information.HDMFNumber AS [Pag Ibig Number], 
+                      dbo.tbl_Personnel_Information.TIN, dbo.tbl_Personnel_Information.DriverLicense AS [Drivers License], 
+                      dbo.tbl_Personnel_Information.EmergencyName AS [Contact Person in Case of Emergency], 
+                      dbo.tbl_Personnel_Information.EmergencyContact AS [Contact Person Number], dbo.tbl_Personnel_IDNumber.DateHired AS [Date Hired], 
+                      ISNULL
+                          ((SELECT     TOP 1 dbo.tbl_Personnel_Department.DepartmentName
+                              FROM         dbo.tbl_Personnel_Action LEFT OUTER JOIN
+                                                    dbo.tbl_Personnel_Department ON dbo.tbl_Personnel_Action.Dept = dbo.tbl_Personnel_Department.PK
+                              WHERE     (dbo.tbl_Personnel_Action.EmpPK = dbo.tbl_Personnel_IDNumber.PK) AND 
+                                                    (dbo.tbl_Personnel_Action.EffectivityDate <= @EffectDate)
+                              ORDER BY dbo.tbl_Personnel_Action.EffectivityDate DESC), '') AS Department, ISNULL
+                          ((SELECT     TOP 1 dbo.tbl_Personnel_Position.PositionName
+                              FROM         dbo.tbl_Personnel_Action LEFT OUTER JOIN
+                                                    dbo.tbl_Personnel_Position ON dbo.tbl_Personnel_Action.Positions = dbo.tbl_Personnel_Position.PK
+                              WHERE     (dbo.tbl_Personnel_Action.EmpPK = dbo.tbl_Personnel_IDNumber.PK) AND 
+                                                    (dbo.tbl_Personnel_Action.EffectivityDate <= @EffectDate)
+                              ORDER BY dbo.tbl_Personnel_Action.EffectivityDate DESC), '') AS Position
+FROM         dbo.tbl_Personnel_IDNumber LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Information ON dbo.tbl_Personnel_IDNumber.ProfileKey = dbo.tbl_Personnel_Information.PK
+WHERE     ((SELECT     TOP 1 dbo.tbl_Personnel_EmploymentStatus.Active
+                         FROM         dbo.tbl_Personnel_Action LEFT OUTER JOIN
+                                               dbo.tbl_Personnel_EmploymentStatus ON dbo.tbl_Personnel_Action.EmpStatus = dbo.tbl_Personnel_EmploymentStatus.PK
+                         WHERE     (dbo.tbl_Personnel_Action.EmpPK = dbo.tbl_Personnel_IDNumber.PK) AND 
+                                               (dbo.tbl_Personnel_Action.EffectivityDate <= @EffectDate)
+                         ORDER BY dbo.tbl_Personnel_Action.EffectivityDate DESC) = @Status)
+ORDER BY dbo.tbl_Personnel_Information.LastName + ',  ' + dbo.tbl_Personnel_Information.FirstName + '  ' + dbo.tbl_Personnel_Information.MiddleName
+GO

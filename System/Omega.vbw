@@ -1,0 +1,9 @@
+aLogIn = 125, 125, 956, 560, C, 25, 25, 856, 460, C
+MainForm = 200, 200, 1031, 635, C, 50, 50, 881, 485, C
+modConnection = 75, 75, 906, 510, C
+b8LineVertical = 0, 0, 0, 0, C, 0, 0, 0, 0, C
+b8Container = 0, 0, 0, 0, C, 0, 0, 0, 0, C
+b8Line = 0, 0, 0, 0, C, 0, 0, 0, 0, C
+b8TitleBar = 0, 0, 0, 0, C, 0, 0, 0, 0, C
+SOLO_RTBSyntax = 0, 0, 0, 0, C, 0, 0, 0, 0, C
+modDeclaration = 175, 175, 1006, 610, C

@@ -1,0 +1,96 @@
+CREATE PROCEDURE sp_Personnel_Compensation_Browse
+
+@PK int, @Select int
+
+AS
+
+--Load
+if @Select = 0
+    SELECT     TOP 1 dbo.tbl_Personnel_Compensation.*, dbo.tbl_Personnel_Department.*, dbo.tbl_Personnel_Position.*, dbo.tbl_Personnel_EmploymentStatus.*,
+                      dbo.tbl_Personnel_Compensation_Period.*, dbo.tbl_Personnel_Compensation.PK AS PrimaryKey,
+                      dbo.tbl_Personnel_IDNumber.IDNumber + ' - ' + dbo.tbl_Personnel_Information.LastName + ',  ' + dbo.tbl_Personnel_Information.FirstName
+                       + '  ' + dbo.tbl_Personnel_Information.MiddleName AS IDName, dbo.tbl_Personnel_Compensation.LastModified as PayLastMod
+    FROM         dbo.tbl_Personnel_Compensation LEFT OUTER JOIN
+                      dbo.tbl_Personnel_IDNumber ON
+                      dbo.tbl_Personnel_Compensation.EmpPK = dbo.tbl_Personnel_IDNumber.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Information ON
+                      dbo.tbl_Personnel_IDNumber.ProfileKey = dbo.tbl_Personnel_Information.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Compensation_Period ON dbo.tbl_Personnel_Compensation.Period = dbo.tbl_Personnel_Compensation_Period.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_EmploymentStatus ON dbo.tbl_Personnel_Compensation.Status = dbo.tbl_Personnel_EmploymentStatus.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Position ON dbo.tbl_Personnel_Compensation.Positions = dbo.tbl_Personnel_Position.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Department ON dbo.tbl_Personnel_Compensation.Dept = dbo.tbl_Personnel_Department.PK
+    WHERE     (dbo.tbl_Personnel_Compensation.PK = @PK)
+    ORDER BY dbo.tbl_Personnel_Compensation.PK DESC
+Else
+--Home
+if @Select = 1
+    SELECT     TOP 1 dbo.tbl_Personnel_Compensation.*, dbo.tbl_Personnel_Department.*, dbo.tbl_Personnel_Position.*, dbo.tbl_Personnel_EmploymentStatus.*,
+                      dbo.tbl_Personnel_Compensation_Period.*, dbo.tbl_Personnel_Compensation.PK AS PrimaryKey,
+                      dbo.tbl_Personnel_IDNumber.IDNumber + ' - ' + dbo.tbl_Personnel_Information.LastName + ',  ' + dbo.tbl_Personnel_Information.FirstName
+                       + '  ' + dbo.tbl_Personnel_Information.MiddleName AS IDName, dbo.tbl_Personnel_Compensation.LastModified as PayLastMod
+    FROM         dbo.tbl_Personnel_Compensation LEFT OUTER JOIN
+                      dbo.tbl_Personnel_IDNumber ON
+                      dbo.tbl_Personnel_Compensation.EmpPK = dbo.tbl_Personnel_IDNumber.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Information ON
+                      dbo.tbl_Personnel_IDNumber.ProfileKey = dbo.tbl_Personnel_Information.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Compensation_Period ON dbo.tbl_Personnel_Compensation.Period = dbo.tbl_Personnel_Compensation_Period.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_EmploymentStatus ON dbo.tbl_Personnel_Compensation.Status = dbo.tbl_Personnel_EmploymentStatus.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Position ON dbo.tbl_Personnel_Compensation.Positions = dbo.tbl_Personnel_Position.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Department ON dbo.tbl_Personnel_Compensation.Dept = dbo.tbl_Personnel_Department.PK
+    ORDER BY dbo.tbl_Personnel_Compensation.PK DESC
+Else
+--PageUp
+if @Select = 2
+    SELECT     TOP 1 dbo.tbl_Personnel_Compensation.*, dbo.tbl_Personnel_Department.*, dbo.tbl_Personnel_Position.*, dbo.tbl_Personnel_EmploymentStatus.*,
+                      dbo.tbl_Personnel_Compensation_Period.*, dbo.tbl_Personnel_Compensation.PK AS PrimaryKey,
+                      dbo.tbl_Personnel_IDNumber.IDNumber + ' - ' + dbo.tbl_Personnel_Information.LastName + ',  ' + dbo.tbl_Personnel_Information.FirstName
+                       + '  ' + dbo.tbl_Personnel_Information.MiddleName AS IDName, dbo.tbl_Personnel_Compensation.LastModified as PayLastMod
+    FROM         dbo.tbl_Personnel_Compensation LEFT OUTER JOIN
+                      dbo.tbl_Personnel_IDNumber ON
+                      dbo.tbl_Personnel_Compensation.EmpPK = dbo.tbl_Personnel_IDNumber.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Information ON
+                      dbo.tbl_Personnel_IDNumber.ProfileKey = dbo.tbl_Personnel_Information.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Compensation_Period ON dbo.tbl_Personnel_Compensation.Period = dbo.tbl_Personnel_Compensation_Period.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_EmploymentStatus ON dbo.tbl_Personnel_Compensation.Status = dbo.tbl_Personnel_EmploymentStatus.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Position ON dbo.tbl_Personnel_Compensation.Positions = dbo.tbl_Personnel_Position.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Department ON dbo.tbl_Personnel_Compensation.Dept = dbo.tbl_Personnel_Department.PK
+    WHERE     (dbo.tbl_Personnel_Compensation.PK > @PK)
+    ORDER BY dbo.tbl_Personnel_Compensation.PK
+Else
+--PageDown
+if @Select = 3
+    SELECT     TOP 1 dbo.tbl_Personnel_Compensation.*, dbo.tbl_Personnel_Department.*, dbo.tbl_Personnel_Position.*, dbo.tbl_Personnel_EmploymentStatus.*,
+                      dbo.tbl_Personnel_Compensation_Period.*, dbo.tbl_Personnel_Compensation.PK AS PrimaryKey,
+                      dbo.tbl_Personnel_IDNumber.IDNumber + ' - ' + dbo.tbl_Personnel_Information.LastName + ',  ' + dbo.tbl_Personnel_Information.FirstName
+                       + '  ' + dbo.tbl_Personnel_Information.MiddleName AS IDName, dbo.tbl_Personnel_Compensation.LastModified as PayLastMod
+    FROM         dbo.tbl_Personnel_Compensation LEFT OUTER JOIN
+                      dbo.tbl_Personnel_IDNumber ON
+                      dbo.tbl_Personnel_Compensation.EmpPK = dbo.tbl_Personnel_IDNumber.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Information ON
+                      dbo.tbl_Personnel_IDNumber.ProfileKey = dbo.tbl_Personnel_Information.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Compensation_Period ON dbo.tbl_Personnel_Compensation.Period = dbo.tbl_Personnel_Compensation_Period.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_EmploymentStatus ON dbo.tbl_Personnel_Compensation.Status = dbo.tbl_Personnel_EmploymentStatus.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Position ON dbo.tbl_Personnel_Compensation.Positions = dbo.tbl_Personnel_Position.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Department ON dbo.tbl_Personnel_Compensation.Dept = dbo.tbl_Personnel_Department.PK
+    WHERE     (dbo.tbl_Personnel_Compensation.PK < @PK)
+    ORDER BY dbo.tbl_Personnel_Compensation.PK  DESC
+Else
+--End
+if @Select = 4
+    SELECT     TOP 1 dbo.tbl_Personnel_Compensation.*, dbo.tbl_Personnel_Department.*, dbo.tbl_Personnel_Position.*, dbo.tbl_Personnel_EmploymentStatus.*,
+                      dbo.tbl_Personnel_Compensation_Period.*, dbo.tbl_Personnel_Compensation.PK AS PrimaryKey,
+                      dbo.tbl_Personnel_IDNumber.IDNumber + ' - ' + dbo.tbl_Personnel_Information.LastName + ',  ' + dbo.tbl_Personnel_Information.FirstName
+                       + '  ' + dbo.tbl_Personnel_Information.MiddleName AS IDName, dbo.tbl_Personnel_Compensation.LastModified as PayLastMod
+    FROM         dbo.tbl_Personnel_Compensation LEFT OUTER JOIN
+                      dbo.tbl_Personnel_IDNumber ON
+                      dbo.tbl_Personnel_Compensation.EmpPK = dbo.tbl_Personnel_IDNumber.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Information ON
+                      dbo.tbl_Personnel_IDNumber.ProfileKey = dbo.tbl_Personnel_Information.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Compensation_Period ON dbo.tbl_Personnel_Compensation.Period = dbo.tbl_Personnel_Compensation_Period.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_EmploymentStatus ON dbo.tbl_Personnel_Compensation.Status = dbo.tbl_Personnel_EmploymentStatus.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Position ON dbo.tbl_Personnel_Compensation.Positions = dbo.tbl_Personnel_Position.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Department ON dbo.tbl_Personnel_Compensation.Dept = dbo.tbl_Personnel_Department.PK
+    ORDER BY dbo.tbl_Personnel_Compensation.PK
+GO
+
+

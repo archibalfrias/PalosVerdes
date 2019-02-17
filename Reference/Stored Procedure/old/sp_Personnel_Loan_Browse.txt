@@ -1,0 +1,80 @@
+CREATE PROCEDURE sp_Personnel_Loan_Browse
+
+@PK int, @Select int
+
+AS
+
+--Load
+if @Select = 0
+    SELECT     TOP 1 dbo.tbl_Personnel_Loans.PK, dbo.tbl_Personnel_Loans.EmpPK, dbo.tbl_Personnel_IDNumber.IDNumber,
+                      dbo.tbl_Personnel_Information.LastName + ',  ' + dbo.tbl_Personnel_Information.FirstName + '  ' + dbo.tbl_Personnel_Information.MiddleName
+                       AS EmpName, dbo.tbl_Personnel_Loans.LoanType, dbo.tbl_Personnel_Loans.DateGranted, dbo.tbl_Personnel_Loans.LoanAmount,
+                      dbo.tbl_Personnel_Loans.InterestType, dbo.tbl_Personnel_Loans.Interest, dbo.tbl_Personnel_Loans.TotalAmount, dbo.tbl_Personnel_Loans.Amortization,
+                      dbo.tbl_Personnel_Loans.NoMonths, dbo.tbl_Personnel_Loans.DateFrom, dbo.tbl_Personnel_Loans.DateTo, dbo.tbl_Personnel_Loans.ZeroOut,
+                      dbo.tbl_Personnel_Loans.TotalPaid , dbo.tbl_Personnel_Loans.Balance, dbo.tbl_Personnel_Loans.LastModified
+    FROM         dbo.tbl_Personnel_Loans LEFT OUTER JOIN
+                      dbo.tbl_Personnel_IDNumber ON
+                      dbo.tbl_Personnel_Loans.EmpPK = dbo.tbl_Personnel_IDNumber.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Information ON dbo.tbl_Personnel_IDNumber.ProfileKey = dbo.tbl_Personnel_Information.PK
+    WHERE     (dbo.tbl_Personnel_Loans.PK = @PK)
+    ORDER BY dbo.tbl_Personnel_Loans.PK
+Else
+--Home
+if @Select = 1
+    SELECT     TOP 1 dbo.tbl_Personnel_Loans.PK, dbo.tbl_Personnel_Loans.EmpPK, dbo.tbl_Personnel_IDNumber.IDNumber,
+                      dbo.tbl_Personnel_Information.LastName + ',  ' + dbo.tbl_Personnel_Information.FirstName + '  ' + dbo.tbl_Personnel_Information.MiddleName
+                       AS EmpName, dbo.tbl_Personnel_Loans.LoanType, dbo.tbl_Personnel_Loans.DateGranted, dbo.tbl_Personnel_Loans.LoanAmount,
+                      dbo.tbl_Personnel_Loans.InterestType, dbo.tbl_Personnel_Loans.Interest, dbo.tbl_Personnel_Loans.TotalAmount, dbo.tbl_Personnel_Loans.Amortization,
+                      dbo.tbl_Personnel_Loans.NoMonths, dbo.tbl_Personnel_Loans.DateFrom, dbo.tbl_Personnel_Loans.DateTo, dbo.tbl_Personnel_Loans.ZeroOut,
+                      dbo.tbl_Personnel_Loans.TotalPaid , dbo.tbl_Personnel_Loans.Balance, dbo.tbl_Personnel_Loans.LastModified
+    FROM         dbo.tbl_Personnel_Loans LEFT OUTER JOIN
+                      dbo.tbl_Personnel_IDNumber ON
+                      dbo.tbl_Personnel_Loans.EmpPK = dbo.tbl_Personnel_IDNumber.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Information ON dbo.tbl_Personnel_IDNumber.ProfileKey = dbo.tbl_Personnel_Information.PK
+    ORDER BY dbo.tbl_Personnel_Loans.PK
+Else
+--PageUp
+if @Select = 2
+    SELECT     TOP 1 dbo.tbl_Personnel_Loans.PK, dbo.tbl_Personnel_Loans.EmpPK, dbo.tbl_Personnel_IDNumber.IDNumber,
+                      dbo.tbl_Personnel_Information.LastName + ',  ' + dbo.tbl_Personnel_Information.FirstName + '  ' + dbo.tbl_Personnel_Information.MiddleName
+                       AS EmpName, dbo.tbl_Personnel_Loans.LoanType, dbo.tbl_Personnel_Loans.DateGranted, dbo.tbl_Personnel_Loans.LoanAmount,
+                      dbo.tbl_Personnel_Loans.InterestType, dbo.tbl_Personnel_Loans.Interest, dbo.tbl_Personnel_Loans.TotalAmount, dbo.tbl_Personnel_Loans.Amortization,
+                      dbo.tbl_Personnel_Loans.NoMonths, dbo.tbl_Personnel_Loans.DateFrom, dbo.tbl_Personnel_Loans.DateTo, dbo.tbl_Personnel_Loans.ZeroOut,
+                      dbo.tbl_Personnel_Loans.TotalPaid , dbo.tbl_Personnel_Loans.Balance, dbo.tbl_Personnel_Loans.LastModified
+    FROM         dbo.tbl_Personnel_Loans LEFT OUTER JOIN
+                      dbo.tbl_Personnel_IDNumber ON
+                      dbo.tbl_Personnel_Loans.EmpPK = dbo.tbl_Personnel_IDNumber.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Information ON dbo.tbl_Personnel_IDNumber.ProfileKey = dbo.tbl_Personnel_Information.PK
+    WHERE     (dbo.tbl_Personnel_Loans.PK < @PK)
+    ORDER BY dbo.tbl_Personnel_Loans.PK DESC
+Else
+--PageDown
+if @Select = 3
+    SELECT     TOP 1 dbo.tbl_Personnel_Loans.PK, dbo.tbl_Personnel_Loans.EmpPK, dbo.tbl_Personnel_IDNumber.IDNumber,
+                      dbo.tbl_Personnel_Information.LastName + ',  ' + dbo.tbl_Personnel_Information.FirstName + '  ' + dbo.tbl_Personnel_Information.MiddleName
+                       AS EmpName, dbo.tbl_Personnel_Loans.LoanType, dbo.tbl_Personnel_Loans.DateGranted, dbo.tbl_Personnel_Loans.LoanAmount,
+                      dbo.tbl_Personnel_Loans.InterestType, dbo.tbl_Personnel_Loans.Interest, dbo.tbl_Personnel_Loans.TotalAmount, dbo.tbl_Personnel_Loans.Amortization,
+                      dbo.tbl_Personnel_Loans.NoMonths, dbo.tbl_Personnel_Loans.DateFrom, dbo.tbl_Personnel_Loans.DateTo, dbo.tbl_Personnel_Loans.ZeroOut,
+                      dbo.tbl_Personnel_Loans.TotalPaid , dbo.tbl_Personnel_Loans.Balance, dbo.tbl_Personnel_Loans.LastModified
+    FROM         dbo.tbl_Personnel_Loans LEFT OUTER JOIN
+                      dbo.tbl_Personnel_IDNumber ON
+                      dbo.tbl_Personnel_Loans.EmpPK = dbo.tbl_Personnel_IDNumber.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Information ON dbo.tbl_Personnel_IDNumber.ProfileKey = dbo.tbl_Personnel_Information.PK
+    WHERE     (dbo.tbl_Personnel_Loans.PK > @PK)
+    ORDER BY dbo.tbl_Personnel_Loans.PK
+Else
+--End
+if @Select = 4
+    SELECT     TOP 1 dbo.tbl_Personnel_Loans.PK, dbo.tbl_Personnel_Loans.EmpPK, dbo.tbl_Personnel_IDNumber.IDNumber,
+                      dbo.tbl_Personnel_Information.LastName + ',  ' + dbo.tbl_Personnel_Information.FirstName + '  ' + dbo.tbl_Personnel_Information.MiddleName
+                       AS EmpName, dbo.tbl_Personnel_Loans.LoanType, dbo.tbl_Personnel_Loans.DateGranted, dbo.tbl_Personnel_Loans.LoanAmount,
+                      dbo.tbl_Personnel_Loans.InterestType, dbo.tbl_Personnel_Loans.Interest, dbo.tbl_Personnel_Loans.TotalAmount, dbo.tbl_Personnel_Loans.Amortization,
+                      dbo.tbl_Personnel_Loans.NoMonths, dbo.tbl_Personnel_Loans.DateFrom, dbo.tbl_Personnel_Loans.DateTo, dbo.tbl_Personnel_Loans.ZeroOut,
+                      dbo.tbl_Personnel_Loans.TotalPaid , dbo.tbl_Personnel_Loans.Balance, dbo.tbl_Personnel_Loans.LastModified
+    FROM         dbo.tbl_Personnel_Loans LEFT OUTER JOIN
+                      dbo.tbl_Personnel_IDNumber ON
+                      dbo.tbl_Personnel_Loans.EmpPK = dbo.tbl_Personnel_IDNumber.PK LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Information ON dbo.tbl_Personnel_IDNumber.ProfileKey = dbo.tbl_Personnel_Information.PK
+    ORDER BY dbo.tbl_Personnel_Loans.PK DESC
+
+GO

@@ -1,0 +1,25 @@
+CREATE PROCEDURE sp_Personnel_Active_Inactive_Report
+
+@Status int, @Effectdate datetime
+
+AS
+
+SELECT     dbo.tbl_Personnel_IDNumber.PK, dbo.tbl_Personnel_IDNumber.IDNumber, 
+                      dbo.tbl_Personnel_Information.LastName + ',  ' + dbo.tbl_Personnel_Information.FirstName + '  ' + dbo.tbl_Personnel_Information.MiddleName AS EmployeeName,
+                       ISNULL
+                          ((SELECT     TOP 1 dbo.tbl_Personnel_Action.PK
+                              FROM         dbo.tbl_Personnel_Action LEFT OUTER JOIN
+                                                    dbo.tbl_Personnel_EmploymentStatus ON dbo.tbl_Personnel_Action.EmpStatus = dbo.tbl_Personnel_EmploymentStatus.PK
+                              WHERE     (dbo.tbl_Personnel_Action.EmpPK = dbo.tbl_Personnel_IDNumber.PK) AND 
+                                                    (dbo.tbl_Personnel_Action.EffectivityDate <= @Effectdate)
+                              ORDER BY dbo.tbl_Personnel_Action.EffectivityDate DESC), 0) AS ActionMemo
+FROM         dbo.tbl_Personnel_IDNumber LEFT OUTER JOIN
+                      dbo.tbl_Personnel_Information ON dbo.tbl_Personnel_IDNumber.ProfileKey = dbo.tbl_Personnel_Information.PK
+WHERE     (ISNULL
+                          ((SELECT     TOP 1 dbo.tbl_Personnel_EmploymentStatus.Active
+                              FROM         dbo.tbl_Personnel_Action LEFT OUTER JOIN
+                                                    dbo.tbl_Personnel_EmploymentStatus ON dbo.tbl_Personnel_Action.EmpStatus = dbo.tbl_Personnel_EmploymentStatus.PK
+                              WHERE     (dbo.tbl_Personnel_Action.EmpPK = dbo.tbl_Personnel_IDNumber.PK) AND 
+                                                    (dbo.tbl_Personnel_Action.EffectivityDate <= @Effectdate)
+                              ORDER BY dbo.tbl_Personnel_Action.EffectivityDate DESC), 0) = @Status)
+GO
